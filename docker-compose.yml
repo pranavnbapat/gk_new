@@ -1,0 +1,36 @@
+services:
+  gk_new_db:
+    image: mariadb:10.6
+    container_name: gk_new_db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: rootpass
+      MARIADB_DATABASE: gatekeeper
+      MARIADB_USER: gatekeeper_admin
+      MARIADB_PASSWORD: bla
+    ports:
+      - "3310:3306"
+    volumes:
+      - gk_new_db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "ping", "-uroot", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  gk_new_pma:
+    image: phpmyadmin:latest
+    container_name: gk_new_pma
+    restart: unless-stopped
+    environment:
+      PMA_HOST: gk_new_db
+      PMA_PORT: 3306
+      PMA_USER: gatekeeper_admin
+      PMA_PASSWORD: bla
+    ports:
+      - "8086:80"
+    depends_on:
+      - gk_new_db
+
+volumes:
+  gk_new_db_data:
